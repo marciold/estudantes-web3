@@ -117,6 +117,11 @@ public class GerenciarAlunos {
 
     private static void listarAlunos(){
         List<Aluno> alunos = alunoDao.listarAlunos();
+
+        if (alunos.isEmpty()){
+            System.out.println("Não há alunos cadastrados no sistema.");
+            return;
+        }
         for (Aluno aluno : alunos) {
             printInfo(aluno);
         }
