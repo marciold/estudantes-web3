@@ -3,6 +3,7 @@ package avaliacao.web3.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Table(name = "alunos")
@@ -18,6 +19,7 @@ public class Aluno {
     private BigDecimal nota1;
     private BigDecimal nota2;
     private BigDecimal nota3;
+    private BigDecimal media;
     private StatusAprovacao status;
 
     public Aluno() {
@@ -30,7 +32,13 @@ public class Aluno {
         this.nota1 = nota1;
         this.nota2 = nota2;
         this.nota3 = nota3;
+        this.media = getMedia();
         this.status = gerarStatusAprovacao();
+    }
+
+    private BigDecimal getMedia() {
+        BigDecimal soma = nota1.add(nota2).add(nota3);
+        return soma.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
     }
 
     private StatusAprovacao gerarStatusAprovacao() {
@@ -90,5 +98,9 @@ public class Aluno {
 
     public void setNota3(BigDecimal nota3) {
         this.nota3 = nota3;
+    }
+
+    public StatusAprovacao getStatus() {
+        return status;
     }
 }
