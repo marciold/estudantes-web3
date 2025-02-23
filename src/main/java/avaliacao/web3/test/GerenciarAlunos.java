@@ -4,11 +4,12 @@ import avaliacao.web3.model.Aluno;
 import avaliacao.web3.persistence.AlunoDao;
 import avaliacao.web3.utils.JPAUtils;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 
 import java.math.BigDecimal;
-import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Scanner;
+
 
 public class GerenciarAlunos {
     private static final EntityManager em = JPAUtils.getEntityManager();
@@ -19,7 +20,7 @@ public class GerenciarAlunos {
 
         int opcao;
         do {
-            System.out.println("\n** CADASTRO DE ALUNOS **");
+            System.out.println("\n** GERENCIAMENTO DE ALUNOS **");
             System.out.println("1 - Cadastrar aluno");
             System.out.println("2 - Excluir aluno");
             System.out.println("3 - Alterar aluno");
@@ -33,19 +34,23 @@ public class GerenciarAlunos {
 
             switch (opcao) {
                 case 1:
+                    System.out.println("\nCadastrar aluno: \n");
                     cadastrarAluno();
                     break;
                 case 2:
-                    //todo
+                    System.out.println("\nExcluir aluno: \n");
+                    removerAlunoPorNome();
                     break;
                 case 3:
-                    //todo
+                    System.out.println("\nAlterar aluno: \n");
+                    alterarAlunoPorNome();
                     break;
                 case 4:
-                    //todo
+                    System.out.println("\nBuscar aluno pelo nome: ");
+                    listarAlunoPorNome();
                     break;
                 case 5:
-                    //todo falta mostrar a media e status, deixei mostrando oq tem no banco para testar
+                    System.out.println("\nListar alunos: ");
                     listarAlunos();
                     break;
                 case 6:
@@ -58,6 +63,7 @@ public class GerenciarAlunos {
         em.close();
     }
 
+
     private static void cadastrarAluno() {
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
@@ -65,15 +71,28 @@ public class GerenciarAlunos {
         String ra = scanner.nextLine();
         System.out.print("Email: ");
         String email = scanner.nextLine();
-        System.out.print("Nota 1: ");
-        BigDecimal nota1 = scanner.nextBigDecimal();
-        System.out.print("Nota 2: ");
-        BigDecimal nota2 = scanner.nextBigDecimal();
-        System.out.print("Nota 3: ");
-        BigDecimal nota3 = scanner.nextBigDecimal();
+        float nota1 = -1;
+        float nota2 = -1;
+        float nota3 = -1;
+
+        while(nota1 < 0 || nota1 > 10){
+            System.out.print("Nota 1: ");
+            nota1 = scanner.nextFloat();
+        }
+        while(nota2 < 0 || nota2 > 10){
+            System.out.print("Nota 2: ");
+            nota2 = scanner.nextFloat();
+        }
+        while(nota3 < 0 || nota3 > 10){
+            System.out.print("Nota 3: ");
+            nota3 = scanner.nextFloat();
+        }
+
+
         scanner.nextLine();
 
-        Aluno aluno = new Aluno(nome, ra, email, nota1, nota2, nota3);
+        Aluno aluno = new Aluno(nome, ra, email, BigDecimal.valueOf(nota1),
+                BigDecimal.valueOf(nota2),  BigDecimal.valueOf(nota3));
 
         em.getTransaction().begin();
 
@@ -84,19 +103,99 @@ public class GerenciarAlunos {
         System.out.println("Aluno cadastrado com sucesso!");
     }
 
+    private static void printInfo(Aluno aluno) {
+        System.out.println("-------------------------------");
+        System.out.println("Nome: " + aluno.getNome());
+        System.out.println("RA: " + aluno.getRa());
+        System.out.println("Email: " + aluno.getEmail());
+        System.out.println("Nota 1: " + aluno.getNota1());
+        System.out.println("Nota 2: " + aluno.getNota2());
+        System.out.println("Nota 3: " + aluno.getNota3());
+        System.out.println("Media: " + aluno.getMedia());
+        System.out.println("Status: " + aluno.getStatus());
+    }
+
     private static void listarAlunos(){
         List<Aluno> alunos = alunoDao.listarAlunos();
         for (Aluno aluno : alunos) {
-            System.out.println("-------------------------------");
-            System.out.println("Nome: " + aluno.getNome());
-            System.out.println("RA: " + aluno.getRa());
-            System.out.println("Email: " + aluno.getEmail());
-            System.out.println("Nota 1: " + aluno.getNota1());
-            System.out.println("Nota 2: " + aluno.getNota2());
-            System.out.println("Nota 3: " + aluno.getNota3());
-            System.out.println("Media: " + aluno.getMedia());
-            System.out.println("Status: " + aluno.getStatus());
+            printInfo(aluno);
         }
     }
+
+    private static void listarAlunoPorNome() {
+        System.out.println("Informe o nome do aluno: ");
+        String nome = scanner.nextLine();
+        try{
+            Aluno aluno = alunoDao.listarPorNome(nome);
+            if (aluno == null)
+                System.out.println("Nenhum aluno encontrado!\n");
+            else
+                printInfo(aluno);
+        }
+        catch (NoResultException e) {
+            System.err.println("\n\nNenhum aluno encontrado");
+        }
+
+    }
+
+    private static void removerAlunoPorNome(){
+        em.getTransaction().begin();
+        System.out.println("Informe o nome do aluno: ");
+        String nome = scanner.nextLine();
+
+        boolean maybeAluno = alunoDao.removerAluno(nome);
+        if (maybeAluno) {
+            System.out.println("Aluno removido!\n");
+            em.getTransaction().commit();
+        }
+        else
+            System.out.println("Aluno não encontrado!\n");
+
+    }
+
+    private static void alterarAlunoPorNome(){
+        System.out.println("Informe o nome do aluno: ");
+        String estudante = scanner.nextLine();
+        Aluno alunoResultado = alunoDao.listarPorNome(estudante);
+        if (alunoResultado == null) {
+            System.out.println("Nenhum aluno encontrado!\n");
+            return ;
+        }
+
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+        System.out.print("RA: ");
+        String ra = scanner.nextLine();
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+        float nota1 = -1;
+        float nota2 = -1;
+        float nota3 = -1;
+
+        while(nota1 < 0 || nota1 > 10){
+            System.out.print("Nota 1: ");
+            nota1 = scanner.nextFloat();
+        }
+        while(nota2 < 0 || nota2 > 10){
+            System.out.print("Nota 2: ");
+            nota2 = scanner.nextFloat();
+        }
+        while(nota3 < 0 || nota3 > 10){
+            System.out.print("Nota 3: ");
+            nota3 = scanner.nextFloat();
+        }
+        
+        em.getTransaction().begin();
+        
+        alunoDao.alterarDados(estudante, nome, email, ra, BigDecimal.valueOf(nota1),
+                BigDecimal.valueOf(nota2),  BigDecimal.valueOf(nota3));
+
+        em.getTransaction().commit();
+
+        System.out.println("\nAluno alterado com sucesso!");
+
+    }
+
+
 
 }
