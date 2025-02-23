@@ -17,8 +17,7 @@ public class AlunoDao {
     }
 
     public List<Aluno> listarAlunos() {
-        String jpql = "SELECT a.nome, a.email, a.ra, a.nota1, a.nota2, a.nota3, " +
-                "a.media, a.status FROM Aluno a";
+        String jpql = "SELECT a FROM Aluno a";
         return em.createQuery(jpql, Aluno.class).getResultList();
     }
 }

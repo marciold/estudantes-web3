@@ -94,6 +94,7 @@ public class GerenciarAlunos {
             System.out.println("Nota 1: " + aluno.getNota1());
             System.out.println("Nota 2: " + aluno.getNota2());
             System.out.println("Nota 3: " + aluno.getNota3());
+            System.out.println("Media: " + aluno.getMedia());
             System.out.println("Status: " + aluno.getStatus());
         }
     }

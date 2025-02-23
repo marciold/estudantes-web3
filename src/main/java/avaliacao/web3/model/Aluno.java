@@ -32,11 +32,11 @@ public class Aluno {
         this.nota1 = nota1;
         this.nota2 = nota2;
         this.nota3 = nota3;
-        this.media = getMedia();
+        this.media = calcularMedia();
         this.status = gerarStatusAprovacao();
     }
 
-    private BigDecimal getMedia() {
+    private BigDecimal calcularMedia() {
         BigDecimal soma = nota1.add(nota2).add(nota3);
         return soma.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
     }
@@ -100,7 +100,13 @@ public class Aluno {
         this.nota3 = nota3;
     }
 
+    public BigDecimal getMedia() {
+        return media;
+    }
+
     public StatusAprovacao getStatus() {
         return status;
     }
+
+
 }
