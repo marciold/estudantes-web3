@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
 
+//Integrantes
+//Giullia Cuerva - RA: SC3039161
+//Márcio Lucas Dantas - RA: SC3039404
 
 public class GerenciarAlunos {
     private static final EntityManager em = JPAUtils.getEntityManager();
